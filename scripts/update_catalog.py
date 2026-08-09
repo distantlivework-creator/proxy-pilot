@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import logging
 import socket
 import sys
 import time
@@ -63,6 +64,40 @@ async def tcp_latency(candidate: ProxyCandidate, timeout: float) -> int | None:
     return round((time.perf_counter() - started) * 1000)
 
 
+async def mtproto_latency(candidate: ProxyCandidate, timeout: float) -> int | None:
+    """Return latency only after Telegram answers through the MTProto proxy.
+
+    An open TCP port is not enough: dead and unrelated HTTPS services often accept
+    a connection on port 443. ``GetConfigRequest`` proves that the candidate can
+    actually carry Telegram MTProto traffic. No Telegram user login is involved.
+    """
+    from telethon import TelegramClient, functions
+    from telethon.network.connection import ConnectionTcpMTProxyRandomizedIntermediate
+    from telethon.sessions import MemorySession
+
+    logging.getLogger("telethon").setLevel(logging.CRITICAL)
+    started = time.perf_counter()
+    client = TelegramClient(
+        MemorySession(),
+        1,
+        "0" * 32,
+        connection=ConnectionTcpMTProxyRandomizedIntermediate,
+        proxy=(candidate.host, candidate.port, candidate.secret),
+        timeout=timeout,
+        connection_retries=0,
+        request_retries=0,
+        auto_reconnect=False,
+    )
+    try:
+        await asyncio.wait_for(client.connect(), timeout=timeout)
+        await asyncio.wait_for(client(functions.help.GetConfigRequest()), timeout=timeout)
+    except Exception:
+        return None
+    finally:
+        await client.disconnect()
+    return round((time.perf_counter() - started) * 1000)
+
+
 async def rank_candidates(
     candidates: list[ProxyCandidate], timeout: float, concurrency: int, keep: int
 ) -> list[dict]:
@@ -70,11 +105,12 @@ async def rank_candidates(
 
     async def check(candidate: ProxyCandidate) -> dict | None:
         async with semaphore:
-            latency = await tcp_latency(candidate, timeout)
+            latency = await mtproto_latency(candidate, timeout)
         if latency is None:
             return None
         row = asdict(candidate)
         row["latency_ms"] = latency
+        row["check_method"] = "mtproto"
         row["link"] = candidate.share_url()
         return row
 
@@ -122,8 +158,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build the static Proxy Pilot catalog")
     parser.add_argument("--sources", type=Path, default=PROJECT_ROOT / "sources.txt")
     parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "site/data/proxies.json")
-    parser.add_argument("--timeout", type=float, default=3.5)
-    parser.add_argument("--concurrency", type=int, default=40)
+    parser.add_argument("--timeout", type=float, default=10)
+    parser.add_argument("--concurrency", type=int, default=20)
     parser.add_argument("--candidate-limit", type=int, default=300)
     parser.add_argument("--keep", type=int, default=12)
     return parser.parse_args()

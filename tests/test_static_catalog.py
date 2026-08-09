@@ -45,6 +45,7 @@ async def test_rank_candidates_prefers_distinct_hosts(monkeypatch):
     async def fake_latency(candidate, _timeout):
         return {443: 10, 80: 5}[candidate.port]
 
-    monkeypatch.setattr("scripts.update_catalog.tcp_latency", fake_latency)
+    monkeypatch.setattr("scripts.update_catalog.mtproto_latency", fake_latency)
     ranked = await rank_candidates(candidates, timeout=1, concurrency=2, keep=3)
     assert [row["host"] for row in ranked[:2]] == ["one.example", "two.example"]
+    assert all(row["check_method"] == "mtproto" for row in ranked)
