@@ -1,119 +1,190 @@
 {
-  "schema_version": 1,
-  "updated_at": "2026-08-09T19:00:14.923815Z",
+  "schema_version": 2,
+  "updated_at": "2026-08-09T19:43:33.281123Z",
   "sources": [
     "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
     "https://www.mtproto.shop/proxies.json"
   ],
   "tested": 138,
+  "health": {
+    "level": "healthy",
+    "reason": "Catalog and sources are operating normally",
+    "protect_new_connections": false,
+    "confirmed_proxies": 12,
+    "sources_total": 2,
+    "sources_ok": 2,
+    "sources_failed": 0,
+    "collector_duration_ms": 49744,
+    "hosting_usage_visible": false
+  },
   "proxies": [
+    {
+      "host": "lashboy.muzanesghy.co.uk",
+      "port": 4455,
+      "secret": "dd104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 4697,
+      "check_method": "mtproto",
+      "link": "https://t.me/proxy?server=lashboy.muzanesghy.co.uk&port=4455&secret=dd104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:25.651376Z",
+      "last_verified_at": "2026-08-09T19:43:25.651376Z",
+      "stability_score": 66
+    },
+    {
+      "host": "parsii.ir.meli-n13.info",
+      "port": 8443,
+      "secret": "104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 4754,
+      "check_method": "mtproto",
+      "link": "https://t.me/proxy?server=parsii.ir.meli-n13.info&port=8443&secret=104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:25.669910Z",
+      "last_verified_at": "2026-08-09T19:43:25.669910Z",
+      "stability_score": 66
+    },
+    {
+      "host": "198.199.120.58",
+      "port": 443,
+      "secret": "9c1d9ff498b2baa7cba0b0336239f509",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 6436,
+      "check_method": "mtproto",
+      "link": "https://t.me/proxy?server=198.199.120.58&port=443&secret=9c1d9ff498b2baa7cba0b0336239f509",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:27.227489Z",
+      "last_verified_at": "2026-08-09T19:43:27.227489Z",
+      "stability_score": 64
+    },
+    {
+      "host": "new.nchnch.co.uk",
+      "port": 4455,
+      "secret": "dd104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 4778,
+      "check_method": "mtproto",
+      "link": "https://t.me/proxy?server=new.nchnch.co.uk&port=4455&secret=dd104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:25.651642Z",
+      "last_verified_at": "2026-08-09T19:43:25.651642Z",
+      "stability_score": 66
+    },
+    {
+      "host": "65.109.218.166",
+      "port": 8443,
+      "secret": "dd104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 4860,
+      "check_method": "mtproto",
+      "link": "https://t.me/proxy?server=65.109.218.166&port=8443&secret=dd104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:25.699978Z",
+      "last_verified_at": "2026-08-09T19:43:25.699978Z",
+      "stability_score": 66
+    },
     {
       "host": "95.217.244.233",
       "port": 8443,
       "secret": "dd104462821249bd7ac519130220c25d09",
       "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 3930,
+      "latency_ms": 4930,
       "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=95.217.244.233&port=8443&secret=dd104462821249bd7ac519130220c25d09"
+      "link": "https://t.me/proxy?server=95.217.244.233&port=8443&secret=dd104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:25.866727Z",
+      "last_verified_at": "2026-08-09T19:43:25.866727Z",
+      "stability_score": 66
     },
     {
-      "host": "41.hide.newflamingodomain.co.uk",
-      "port": 8443,
+      "host": "mizaneshgh2.co.uk",
+      "port": 4455,
       "secret": "dd104462821249bd7ac519130220c25d09",
       "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4249,
+      "latency_ms": 4936,
       "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=41.hide.newflamingodomain.co.uk&port=8443&secret=dd104462821249bd7ac519130220c25d09"
+      "link": "https://t.me/proxy?server=mizaneshgh2.co.uk&port=4455&secret=dd104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:25.888584Z",
+      "last_verified_at": "2026-08-09T19:43:25.888584Z",
+      "stability_score": 66
     },
     {
       "host": "hide.he6fhd.ru",
       "port": 8443,
       "secret": "dd104462821249bd7ac519130220c25d09",
       "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4250,
+      "latency_ms": 4941,
       "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=hide.he6fhd.ru&port=8443&secret=dd104462821249bd7ac519130220c25d09"
-    },
-    {
-      "host": "d6gjeds6bbk888hh0djjj00lan.ir.meli-n13.info",
-      "port": 8443,
-      "secret": "104462821249bd7ac519130220c25d09",
-      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4428,
-      "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=d6gjeds6bbk888hh0djjj00lan.ir.meli-n13.info&port=8443&secret=104462821249bd7ac519130220c25d09"
-    },
-    {
-      "host": "d6gddje6bbk888hh0djjj00lan.ir.meli-n13.info",
-      "port": 8443,
-      "secret": "104462821249bd7ac519130220c25d09",
-      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4444,
-      "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=d6gddje6bbk888hh0djjj00lan.ir.meli-n13.info&port=8443&secret=104462821249bd7ac519130220c25d09"
-    },
-    {
-      "host": "76dettvasl65a11kpi912713.ir.ir.ir.meli-n12.info",
-      "port": 8443,
-      "secret": "dd104462821249bd7ac519130220c25d09",
-      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4464,
-      "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=76dettvasl65a11kpi912713.ir.ir.ir.meli-n12.info&port=8443&secret=dd104462821249bd7ac519130220c25d09"
-    },
-    {
-      "host": "21.hide.newflamingodomain.co.uk",
-      "port": 8443,
-      "secret": "dd104462821249bd7ac519130220c25d09",
-      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4473,
-      "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=21.hide.newflamingodomain.co.uk&port=8443&secret=dd104462821249bd7ac519130220c25d09"
-    },
-    {
-      "host": "new7.mizanmizanesgh.co.uk",
-      "port": 4455,
-      "secret": "dd104462821249bd7ac519130220c25d09",
-      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4493,
-      "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=new7.mizanmizanesgh.co.uk&port=4455&secret=dd104462821249bd7ac519130220c25d09"
-    },
-    {
-      "host": "azadi.goooalir.co.uk",
-      "port": 8443,
-      "secret": "dd104462821249bd7ac519130220c25d09",
-      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4511,
-      "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=azadi.goooalir.co.uk&port=8443&secret=dd104462821249bd7ac519130220c25d09"
-    },
-    {
-      "host": "s7n.ir.ir.ir.meli-n12.info",
-      "port": 8443,
-      "secret": "dd104462821249bd7ac519130220c25d09",
-      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4549,
-      "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=s7n.ir.ir.ir.meli-n12.info&port=8443&secret=dd104462821249bd7ac519130220c25d09"
+      "link": "https://t.me/proxy?server=hide.he6fhd.ru&port=8443&secret=dd104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:25.891648Z",
+      "last_verified_at": "2026-08-09T19:43:25.891648Z",
+      "stability_score": 66
     },
     {
       "host": "sh.ir.meli-n13.info",
       "port": 8443,
       "secret": "104462821249bd7ac519130220c25d09",
       "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4594,
+      "latency_ms": 4950,
       "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=sh.ir.meli-n13.info&port=8443&secret=104462821249bd7ac519130220c25d09"
+      "link": "https://t.me/proxy?server=sh.ir.meli-n13.info&port=8443&secret=104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:25.773130Z",
+      "last_verified_at": "2026-08-09T19:43:25.773130Z",
+      "stability_score": 66
     },
     {
-      "host": "62.238.62.83",
+      "host": "severjadid.co.uk",
+      "port": 4455,
+      "secret": "dd104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 4990,
+      "check_method": "mtproto",
+      "link": "https://t.me/proxy?server=severjadid.co.uk&port=4455&secret=dd104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:25.866274Z",
+      "last_verified_at": "2026-08-09T19:43:25.866274Z",
+      "stability_score": 66
+    },
+    {
+      "host": "41.hide.newflamingodomain.co.uk",
       "port": 8443,
       "secret": "dd104462821249bd7ac519130220c25d09",
       "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
-      "latency_ms": 4743,
+      "latency_ms": 5025,
       "check_method": "mtproto",
-      "link": "https://t.me/proxy?server=62.238.62.83&port=8443&secret=dd104462821249bd7ac519130220c25d09"
+      "link": "https://t.me/proxy?server=41.hide.newflamingodomain.co.uk&port=8443&secret=dd104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:30.203078Z",
+      "last_verified_at": "2026-08-09T19:43:30.203078Z",
+      "stability_score": 65
+    },
+    {
+      "host": "r1.balebale.co.uk",
+      "port": 4455,
+      "secret": "dd104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 5035,
+      "check_method": "mtproto",
+      "link": "https://t.me/proxy?server=r1.balebale.co.uk&port=4455&secret=dd104462821249bd7ac519130220c25d09",
+      "checks_passed": 2,
+      "success_streak": 1,
+      "first_verified_at": "2026-08-09T19:43:26.172227Z",
+      "last_verified_at": "2026-08-09T19:43:26.172227Z",
+      "stability_score": 65
     }
   ]
 }

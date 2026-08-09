@@ -6,7 +6,15 @@ from pathlib import Path
 import pytest
 
 from app.domain import ProxyCandidate
-from scripts.update_catalog import rank_candidates, read_sources, write_catalog
+from app.ui import PAGE
+from scripts.update_catalog import (
+    build_health,
+    collect_candidates,
+    previous_rows,
+    rank_candidates,
+    read_sources,
+    write_catalog,
+)
 
 
 def test_read_sources_skips_comments(tmp_path: Path):
@@ -25,13 +33,23 @@ def test_write_catalog_uses_stable_schema(tmp_path: Path):
         [{"host": candidate.host, "port": 443, "secret": candidate.secret, "source": "test", "latency_ms": 42, "link": candidate.share_url()}],
     )
     payload = json.loads(output.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == 1
+    assert payload["schema_version"] == 2
     assert payload["proxies"][0]["latency_ms"] == 42
 
 
 def test_write_catalog_refuses_empty_result(tmp_path: Path):
     with pytest.raises(RuntimeError, match="No reachable proxies"):
         write_catalog(tmp_path / "proxies.json", [], 0, [])
+
+
+def test_write_catalog_publishes_empty_critical_state(tmp_path: Path):
+    output = tmp_path / "proxies.json"
+    health = build_health(0, {"sources_total": 2, "sources_ok": 0, "sources_failed": 2}, 900)
+    write_catalog(output, [], 0, [], health=health)
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["proxies"] == []
+    assert payload["health"]["level"] == "critical"
+    assert payload["health"]["protect_new_connections"] is True
 
 
 @pytest.mark.asyncio
@@ -49,3 +67,110 @@ async def test_rank_candidates_prefers_distinct_hosts(monkeypatch):
     ranked = await rank_candidates(candidates, timeout=1, concurrency=2, keep=3)
     assert [row["host"] for row in ranked[:2]] == ["one.example", "two.example"]
     assert all(row["check_method"] == "mtproto" for row in ranked)
+    assert all(row["checks_passed"] == 2 for row in ranked)
+
+
+@pytest.mark.asyncio
+async def test_rank_candidates_rejects_transient_success(monkeypatch):
+    candidate = ProxyCandidate("flaky.example", 443, "d" * 32)
+    attempts = 0
+
+    async def flaky_latency(_candidate, _timeout):
+        nonlocal attempts
+        attempts += 1
+        return 20 if attempts == 1 else None
+
+    monkeypatch.setattr("scripts.update_catalog.mtproto_latency", flaky_latency)
+    assert await rank_candidates([candidate], timeout=1, concurrency=1, keep=1) == []
+
+
+@pytest.mark.asyncio
+async def test_rank_candidates_backfills_after_early_transient_results(monkeypatch):
+    candidates = [ProxyCandidate(f"p{i}.example", 443, f"{i:x}" * 32) for i in range(5)]
+    attempts = {candidate.key: 0 for candidate in candidates}
+
+    async def fake_latency(candidate, _timeout):
+        attempts[candidate.key] += 1
+        if candidate.host != "p4.example" and attempts[candidate.key] == 2:
+            return None
+        return 10
+
+    monkeypatch.setattr("scripts.update_catalog.mtproto_latency", fake_latency)
+    ranked = await rank_candidates(candidates, timeout=1, concurrency=5, keep=1)
+    assert [row["host"] for row in ranked] == ["p4.example"]
+    assert attempts[candidates[-1].key] == 2
+
+
+def test_previous_rows_reads_local_history(tmp_path: Path):
+    output = tmp_path / "proxies.json"
+    output.write_text(
+        json.dumps({"proxies": [{"host": "old.example", "port": 443, "secret": "a" * 32, "success_streak": 4}]}),
+        encoding="utf-8",
+    )
+    history = previous_rows(output, None)
+    assert next(iter(history.values()))["success_streak"] == 4
+
+
+def test_previous_rows_ignores_non_object_payload(tmp_path: Path):
+    output = tmp_path / "proxies.json"
+    output.write_text("[]", encoding="utf-8")
+    assert previous_rows(output, None) == {}
+
+
+def test_collect_candidates_reports_source_health(monkeypatch):
+    stats = {}
+
+    def fake_fetch(url, timeout=15):
+        if "bad" in url:
+            raise OSError("offline")
+        return "https://t.me/proxy?server=ok.example&port=443&secret=" + "a" * 32
+
+    monkeypatch.setattr("scripts.update_catalog.fetch_source", fake_fetch)
+    candidates = collect_candidates(["https://good", "https://bad"], 10, stats)
+    assert len(candidates) == 1
+    assert stats == {"sources_total": 2, "sources_ok": 1, "sources_failed": 1}
+
+
+def test_collect_candidates_checks_later_sources_after_limit(monkeypatch):
+    stats = {}
+
+    def fake_fetch(url, timeout=15):
+        if "second" in url:
+            raise OSError("offline")
+        return "https://t.me/proxy?server=one.example&port=443&secret=" + "a" * 32
+
+    monkeypatch.setattr("scripts.update_catalog.fetch_source", fake_fetch)
+    candidates = collect_candidates(["https://first", "https://second"], 1, stats)
+    assert len(candidates) == 1
+    assert stats == {"sources_total": 2, "sources_ok": 1, "sources_failed": 1}
+
+
+@pytest.mark.parametrize(
+    ("count", "failed", "level", "protect"),
+    [
+        (2, 0, "critical", True),
+        (7, 0, "degraded", False),
+        (12, 1, "degraded", False),
+        (12, 0, "healthy", False),
+    ],
+)
+def test_build_health_protects_only_when_reserves_are_critical(count, failed, level, protect):
+    health = build_health(
+        count,
+        {"sources_total": 2, "sources_ok": 2 - failed, "sources_failed": failed},
+        1234,
+    )
+    assert health["level"] == level
+    assert health["protect_new_connections"] is protect
+    assert health["hosting_usage_visible"] is False
+    assert health["collector_duration_ms"] == 1234
+
+
+def test_ui_contains_resilience_flow():
+    assert 'Да, работает' in PAGE
+    assert 'Настроить 3 резерва' in PAGE
+    assert 'Auto-Switch' in PAGE
+    assert 'proxyPilotBlockedV1' in PAGE
+    assert 'Новые подключения приостановлены' in PAGE
+    assert 'Как пользоваться' in PAGE
+    assert 'Частые вопросы' in PAGE
