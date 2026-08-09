@@ -1,4 +1,4 @@
-const CACHE = "proxy-pilot-v7";
+const CACHE = "proxy-pilot-v8";
 const SHELL = ["./", "./manifest.webmanifest", "./static/icon-192.png", "./static/icon-512.png"];
 
 self.addEventListener("install", event => {

@@ -174,8 +174,8 @@ def test_ui_contains_resilience_flow():
     assert 'Новые подключения приостановлены' in PAGE
     assert 'Как пользоваться' in PAGE
     assert 'Частые вопросы' in PAGE
-    assert 'Настроить 3 прокси для Telegram' in PAGE
-    assert "$('#power').onclick=startWizard" in PAGE
+    assert 'Добавить 3 прокси внутри Telegram' in PAGE
+    assert "$('#power').onclick=handleDeckClick" in PAGE
     assert 'Добавить только один прокси' not in PAGE
     assert 'Что такое Auto-Switch и как его включить?' in PAGE
     assert 'for(const number of [3,2,1])' in PAGE
@@ -183,5 +183,28 @@ def test_ui_contains_resilience_flow():
     assert "wizardPhase!=='awaiting-confirmation'" in PAGE
     assert 'vinyl-disc' in PAGE
     assert 'tonearm' in PAGE
-    assert 'Добавьте три резервных прокси' in PAGE
-    assert 'Подтвердите каждый в Telegram' in PAGE
+    assert 'Отправьте сообщение в «Избранное»' in PAGE
+    assert 'Откройте внутри него ссылки 1, 2 и 3' in PAGE
+    assert 'proxyPilotDeckV1' in PAGE
+    assert 'Остановить пластинку' in PAGE
+    assert 'Настройки Telegram не изменились' in PAGE
+    assert "location.href='tg://settings'" in PAGE
+    assert 'faq-rack' in PAGE
+    assert 'Заменить набор прокси' in PAGE
+    assert 'перестали работать все три' in PAGE
+    assert 'Почему сайт можно закрыть?' in PAGE
+    assert 'Почему три кружка не становятся красными?' in PAGE
+    assert "$('#deckReplace').onclick=replaceDeckSet" in PAGE
+    assert 'Один переход вместо трёх' in PAGE
+    assert 'Добавьте все 3 внутри Telegram' in PAGE
+    assert 'bundleShareUrl' in PAGE
+    assert 'Почему Telegram не возвращает меня на сайт?' in PAGE
+    assert "$('#bundleOpen').onclick=openBundleInTelegram" in PAGE
+    assert "$('#bundleConfirmed').onclick=confirmBundle" in PAGE
+    assert 'Поделиться приложением' in PAGE
+    assert 'Задонатить' in PAGE
+    assert 'shareApplication' in PAGE
+    assert 'ничего не списывает' in PAGE
+    assert 'Один активен' not in PAGE
+    assert 'подключено автоматически' not in PAGE.lower()
+    assert 'Прокси отключён' not in PAGE
