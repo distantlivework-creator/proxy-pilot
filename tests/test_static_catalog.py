@@ -174,7 +174,7 @@ def test_ui_contains_resilience_flow():
     assert 'Новые подключения приостановлены' in PAGE
     assert 'Как пользоваться' in PAGE
     assert 'Частые вопросы' in PAGE
-    assert 'Добавить 3 прокси внутри Telegram' in PAGE
+    assert 'Добавьте 3 прокси по одному' in PAGE
     assert "$('#power').onclick=handleDeckClick" in PAGE
     assert 'Добавить только один прокси' not in PAGE
     assert 'Что такое Auto-Switch и как его включить?' in PAGE
@@ -183,8 +183,8 @@ def test_ui_contains_resilience_flow():
     assert "wizardPhase!=='awaiting-confirmation'" in PAGE
     assert 'vinyl-disc' in PAGE
     assert 'tonearm' in PAGE
-    assert 'Отправьте сообщение в «Избранное»' in PAGE
-    assert 'Откройте внутри него ссылки 1, 2 и 3' in PAGE
+    assert 'Добавьте один прокси' in PAGE
+    assert 'Подтвердите и повторите' in PAGE
     assert 'proxyPilotDeckV1' in PAGE
     assert 'Остановить пластинку' in PAGE
     assert 'Настройки Telegram не изменились' in PAGE
@@ -209,6 +209,10 @@ def test_ui_contains_resilience_flow():
     assert 'Задонатить' in PAGE
     assert 'shareApplication' in PAGE
     assert 'ничего не списывает' in PAGE
+    assert 'proxyPilotThemeV1' in PAGE
+    assert 'themeToggle' in PAGE
+    assert 'data-theme="dark"' in PAGE
+    assert 'startWizard()' in PAGE
     assert 'Один активен' not in PAGE
     assert 'подключено автоматически' not in PAGE.lower()
     assert 'Прокси отключён' not in PAGE
