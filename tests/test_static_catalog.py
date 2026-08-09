@@ -183,3 +183,5 @@ def test_ui_contains_resilience_flow():
     assert "wizardPhase!=='awaiting-confirmation'" in PAGE
     assert 'vinyl-disc' in PAGE
     assert 'tonearm' in PAGE
+    assert 'Добавьте три резервных прокси' in PAGE
+    assert 'Подтвердите каждый в Telegram' in PAGE
