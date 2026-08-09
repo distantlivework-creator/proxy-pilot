@@ -1,0 +1,26 @@
+{
+  "name": "Proxy Pilot",
+  "short_name": "Proxy Pilot",
+  "description": "Автоматический подбор рабочего MTProto-прокси для Telegram",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F5F8FC",
+  "theme_color": "#F5F8FC",
+  "icons": [
+    {
+      "src": "./static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

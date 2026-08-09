@@ -1,0 +1,2 @@
+"""MTProxy Pilot application."""
+

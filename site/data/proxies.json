@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-08-09T18:25:06.687541Z",
+  "sources": [
+    "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+    "https://www.mtproto.shop/proxies.json"
+  ],
+  "tested": 138,
+  "proxies": [
+    {
+      "host": "140.245.109.193",
+      "port": 12432,
+      "secret": "ee8ead80833a964b949b5bed25e36850136f7261636c652e636f6d",
+      "source": "https://www.mtproto.shop/proxies.json",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=140.245.109.193&port=12432&secret=ee8ead80833a964b949b5bed25e36850136f7261636c652e636f6d"
+    },
+    {
+      "host": "146.56.133.135",
+      "port": 12432,
+      "secret": "eed320b6a8bc3e556a13ffeb2d4c09b2656f7261636c652e636f6d",
+      "source": "https://www.mtproto.shop/proxies.json",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=146.56.133.135&port=12432&secret=eed320b6a8bc3e556a13ffeb2d4c09b2656f7261636c652e636f6d"
+    },
+    {
+      "host": "155.248.198.225",
+      "port": 12432,
+      "secret": "eed77ecc3d0cc0bbed1809bd5ae989e1976f7261636c652e636f6d",
+      "source": "https://www.mtproto.shop/proxies.json",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=155.248.198.225&port=12432&secret=eed77ecc3d0cc0bbed1809bd5ae989e1976f7261636c652e636f6d"
+    },
+    {
+      "host": "195.254.165.247",
+      "port": 25565,
+      "secret": "dd79e344818749bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=195.254.165.247&port=25565&secret=dd79e344818749bd7ac519130220c25d09"
+    },
+    {
+      "host": "195.254.165.252",
+      "port": 25565,
+      "secret": "dd79e344818749bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=195.254.165.252&port=25565&secret=dd79e344818749bd7ac519130220c25d09"
+    },
+    {
+      "host": "195.254.165.253",
+      "port": 25565,
+      "secret": "dd79e344818749bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=195.254.165.253&port=25565&secret=dd79e344818749bd7ac519130220c25d09"
+    },
+    {
+      "host": "198.199.120.58",
+      "port": 443,
+      "secret": "9c1d9ff498b2baa7cba0b0336239f509",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=198.199.120.58&port=443&secret=9c1d9ff498b2baa7cba0b0336239f509"
+    },
+    {
+      "host": "45.39.190.22",
+      "port": 12432,
+      "secret": "eefbd42f09e61eb35b8ce843b28aa6b7986f7261636c652e636f6d",
+      "source": "https://www.mtproto.shop/proxies.json",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=45.39.190.22&port=12432&secret=eefbd42f09e61eb35b8ce843b28aa6b7986f7261636c652e636f6d"
+    },
+    {
+      "host": "46.225.26.227",
+      "port": 8443,
+      "secret": "dd104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=46.225.26.227&port=8443&secret=dd104462821249bd7ac519130220c25d09"
+    },
+    {
+      "host": "62.238.35.31",
+      "port": 8443,
+      "secret": "dd104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=62.238.35.31&port=8443&secret=dd104462821249bd7ac519130220c25d09"
+    },
+    {
+      "host": "62.238.40.18",
+      "port": 8443,
+      "secret": "dd104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=62.238.40.18&port=8443&secret=dd104462821249bd7ac519130220c25d09"
+    },
+    {
+      "host": "62.238.62.83",
+      "port": 8443,
+      "secret": "dd104462821249bd7ac519130220c25d09",
+      "source": "https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt",
+      "latency_ms": 1,
+      "link": "https://t.me/proxy?server=62.238.62.83&port=8443&secret=dd104462821249bd7ac519130220c25d09"
+    }
+  ]
+}

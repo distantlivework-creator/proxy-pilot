@@ -1,0 +1,58 @@
+services:
+  mtproxy:
+    build:
+      context: ../mtproxy
+    restart: unless-stopped
+    ports:
+      - "443:8443/tcp"
+    environment:
+      MTPROXY_SECRET: ${MTPROXY_SECRET:?Set MTPROXY_SECRET in .env}
+      MTPROXY_PORT: 8443
+      MTPROXY_WORKERS: 1
+    volumes:
+      - mtproxy-data:/data
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  app:
+    build:
+      context: ../..
+    restart: unless-stopped
+    environment:
+      STABLE_PROXY_HOST: ${DUCKDNS_DOMAIN:?Set DUCKDNS_DOMAIN in .env}
+      STABLE_PROXY_PORT: 443
+      STABLE_PROXY_SECRET: ${MTPROXY_CLIENT_SECRET:?Set MTPROXY_CLIENT_SECRET in .env}
+      CLUSTER_NODES: primary=mtproxy:8443
+      SCAN_INTERVAL_SECONDS: 60
+      NODE_FAILURES_BEFORE_DNS_REMOVAL: 2
+    volumes:
+      - pilot-data:/app/data
+    depends_on:
+      mtproxy:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80/tcp"
+      - "8443:8443/tcp"
+    environment:
+      DUCKDNS_DOMAIN: ${DUCKDNS_DOMAIN:?Set DUCKDNS_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+volumes:
+  mtproxy-data:
+  pilot-data:
+  caddy-data:
+  caddy-config:
