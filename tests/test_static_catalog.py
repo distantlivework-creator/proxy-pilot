@@ -178,3 +178,8 @@ def test_ui_contains_resilience_flow():
     assert "$('#power').onclick=startWizard" in PAGE
     assert 'Добавить только один прокси' not in PAGE
     assert 'Что такое Auto-Switch и как его включить?' in PAGE
+    assert 'for(const number of [3,2,1])' in PAGE
+    assert "wizardCompleted===3" in PAGE
+    assert "wizardPhase!=='awaiting-confirmation'" in PAGE
+    assert 'vinyl-disc' in PAGE
+    assert 'tonearm' in PAGE
