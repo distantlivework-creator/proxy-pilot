@@ -196,11 +196,15 @@ def test_ui_contains_resilience_flow():
     assert 'Почему три кружка не становятся красными?' in PAGE
     assert "$('#deckReplace').onclick=replaceDeckSet" in PAGE
     assert 'Один переход вместо трёх' in PAGE
-    assert 'Добавьте все 3 внутри Telegram' in PAGE
+    assert 'Сначала отправьте сообщение себе' in PAGE
     assert 'bundleShareUrl' in PAGE
     assert 'Почему Telegram не возвращает меня на сайт?' in PAGE
     assert "$('#bundleOpen').onclick=openBundleInTelegram" in PAGE
     assert "$('#bundleConfirmed').onclick=confirmBundle" in PAGE
+    assert 'Сначала отправьте сообщение себе' in PAGE
+    assert 'Ссылки становятся нажимаемыми после отправки сообщения' in PAGE
+    assert 'Выбрать «Избранное» и отправить' in PAGE
+    assert 'До отправки ссылки не нажимаются' in PAGE
     assert 'Поделиться приложением' in PAGE
     assert 'Задонатить' in PAGE
     assert 'shareApplication' in PAGE
