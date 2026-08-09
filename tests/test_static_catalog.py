@@ -174,3 +174,6 @@ def test_ui_contains_resilience_flow():
     assert 'Новые подключения приостановлены' in PAGE
     assert 'Как пользоваться' in PAGE
     assert 'Частые вопросы' in PAGE
+    assert 'Настроить 3 прокси для Telegram' in PAGE
+    assert "$('#power').onclick=startWizard" in PAGE
+    assert 'Добавить только один прокси' in PAGE
