@@ -176,4 +176,5 @@ def test_ui_contains_resilience_flow():
     assert 'Частые вопросы' in PAGE
     assert 'Настроить 3 прокси для Telegram' in PAGE
     assert "$('#power').onclick=startWizard" in PAGE
-    assert 'Добавить только один прокси' in PAGE
+    assert 'Добавить только один прокси' not in PAGE
+    assert 'Что такое Auto-Switch и как его включить?' in PAGE
