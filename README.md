@@ -2,6 +2,8 @@
 
 Android-приложение с максимально простым интерфейсом в духе Outline и backend, который читает заданные Telegram-каналы, извлекает MTProto proxy-ссылки, проверяет их и отдаёт телефону лучший вариант.
 
+**Рабочая PWA:** <https://distantlivework-creator.github.io/proxy-pilot/>
+
 ## Бесплатный тест без VPS и карты
 
 Режим GitHub Pages не требует постоянно запущенного сервера:
