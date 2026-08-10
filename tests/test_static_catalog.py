@@ -272,26 +272,17 @@ def test_ui_contains_resilience_flow():
     assert 'Прокси отключён' not in PAGE
 
 
-def test_vinyl_music_is_opt_in_and_has_twenty_tracks():
-    assert "let soundEnabled=false" in PAGE
-    assert "proxyPilotSoundV1" in PAGE
-    assert "proxyPilotVolumeV1" in PAGE
-    assert "proxyPilotTrackV1" in PAGE
-    assert "window.AudioContext||window.webkitAudioContext" in PAGE
-    assert "TRACKS=['Northern Signal'" in PAGE
-    assert "'Pilot Home']" in PAGE
-    assert "TRACK ${String(activeTrack+1).padStart(2,'0')} / ${TRACKS.length}" in PAGE
-    assert 'Предыдущая дорожка' in PAGE
-    assert 'Следующая дорожка' in PAGE
-    assert 'type="range" min="0" max="100"' in PAGE
-    assert "style.setProperty('--needle-shift'" in PAGE
-    assert "if(musicStep>=512)" in PAGE
-    music = PAGE[PAGE.index("function scheduleMusic"):PAGE.index("function stopMusic")]
-    assert "padChord" in music
-    assert "softPulse" in music
-    assert "'sawtooth'" not in music
-    assert "'square'" not in music
-    assert "https://" not in PAGE[PAGE.index("const TRACKS="):PAGE.index("async function api")]
+def test_vinyl_is_visual_only_without_music_artifacts():
+    assert "AudioContext" not in PAGE
+    assert "proxyPilotSoundV1" not in PAGE
+    assert "proxyPilotVolumeV1" not in PAGE
+    assert "proxyPilotTrackV1" not in PAGE
+    assert "soundToggle" not in PAGE
+    assert "volumeSlider" not in PAGE
+    assert "scheduleMusic" not in PAGE
+    assert "🔊" not in PAGE and "🔇" not in PAGE
+    assert "Визуальная анимация остановлена" in PAGE
+    assert "classList.toggle('persistent'" in PAGE
 
 
 def test_language_toggle_translates_the_whole_interface():
