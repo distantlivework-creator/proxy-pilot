@@ -222,6 +222,10 @@ def test_ui_contains_resilience_flow():
     assert 'Настройки Telegram не изменились' in PAGE
     assert "location.href='tg://settings'" in PAGE
     assert 'faq-rack' in PAGE
+    assert 'faq-collapse' in PAGE
+    assert 'Свернуть ответ ↑' in PAGE
+    assert 'align-items:start' in PAGE
+    assert "summary.scrollIntoView" in PAGE
     assert 'Заменить набор прокси' in PAGE
     assert 'перестали работать все три' in PAGE
     assert 'Почему сайт можно закрыть?' in PAGE
@@ -282,4 +286,23 @@ def test_vinyl_music_is_opt_in_and_has_twenty_tracks():
     assert 'type="range" min="0" max="100"' in PAGE
     assert "style.setProperty('--needle-shift'" in PAGE
     assert "if(musicStep>=512)" in PAGE
+    music = PAGE[PAGE.index("function scheduleMusic"):PAGE.index("function stopMusic")]
+    assert "padChord" in music
+    assert "softPulse" in music
+    assert "'sawtooth'" not in music
+    assert "'square'" not in music
     assert "https://" not in PAGE[PAGE.index("const TRACKS="):PAGE.index("async function api")]
+
+
+def test_language_toggle_translates_the_whole_interface():
+    assert "proxyPilotLanguageV1" in PAGE
+    assert "langToggle.className='lang-btn'" in PAGE
+    assert '.lang-btn[data-language="en"]' in PAGE
+    assert "langToggle.dataset.language=language" in PAGE
+    assert "if(langToggle.textContent)langToggle.textContent=''" in PAGE
+    assert "document.documentElement.lang=language" in PAGE
+    assert "const TRANSLATIONS=" in PAGE
+    assert "Questions in record sleeves" in PAGE
+    assert "How is MTProto Proxy different from a VPN?" in PAGE
+    assert "Collapse answer ↑" in PAGE
+    assert "languageObserver.observe" in PAGE
