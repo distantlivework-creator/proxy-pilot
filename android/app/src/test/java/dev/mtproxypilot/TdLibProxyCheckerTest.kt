@@ -11,18 +11,13 @@ import org.junit.Test
 
 class TdLibProxyCheckerTest {
     @Test
-    fun addsPingsAndRemovesProxyWithoutEnablingIt() = runBlocking {
+    fun pingsProxyDirectlyWithoutAddingOrEnablingIt() = runBlocking {
         val requests = mutableListOf<JSONObject>()
         val transport = object : TdRawTransport {
             override suspend fun request(json: String): String {
                 val request = JSONObject(json)
                 requests += request
-                return when (request.getString("@type")) {
-                    "addProxy" -> """{"@type":"proxy","id":17}"""
-                    "pingProxy" -> """{"@type":"seconds","seconds":0.245}"""
-                    "removeProxy" -> """{"@type":"ok"}"""
-                    else -> error("Unexpected request")
-                }
+                return """{"@type":"seconds","seconds":0.245}"""
             }
         }
 
@@ -31,7 +26,9 @@ class TdLibProxyCheckerTest {
         )
 
         assertEquals(245L, latency)
-        assertEquals(listOf("addProxy", "pingProxy", "removeProxy"), requests.map { it.getString("@type") })
-        assertFalse(requests.first().getBoolean("enable"))
+        assertEquals(listOf("pingProxy"), requests.map { it.getString("@type") })
+        val requestProxy = requests.single().getJSONObject("proxy")
+        assertEquals("proxy.example", requestProxy.getString("server"))
+        assertFalse(requests.single().has("enable"))
     }
 }
