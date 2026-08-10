@@ -10,9 +10,11 @@ from app.ui import PAGE
 from scripts.update_catalog import (
     build_health,
     collect_candidates,
+    fake_tls_domain,
     previous_rows,
     rank_candidates,
     read_sources,
+    transport_mode,
     write_catalog,
 )
 
@@ -21,6 +23,17 @@ def test_read_sources_skips_comments(tmp_path: Path):
     source_file = tmp_path / "sources.txt"
     source_file.write_text("# note\n\nhttps://example.test/list\n", encoding="utf-8")
     assert read_sources(source_file) == ["https://example.test/list"]
+
+
+def test_fake_tls_secret_requires_hex_core_and_valid_domain():
+    valid = "ee" + "a" * 32 + "example.com".encode().hex()
+    assert fake_tls_domain(valid) == "example.com"
+    assert transport_mode(valid) == "fake-tls"
+    assert fake_tls_domain("ee" + "a" * 32) is None
+    assert fake_tls_domain("ee" + "a" * 32 + "not hex") is None
+    assert fake_tls_domain("ee" + "a" * 32 + "localhost".encode().hex()) is None
+    assert transport_mode("dd" + "a" * 32) == "random-padding"
+    assert transport_mode("a" * 32) == "classic"
 
 
 def test_write_catalog_uses_stable_schema(tmp_path: Path):
@@ -67,6 +80,25 @@ async def test_rank_candidates_prefers_distinct_hosts(monkeypatch):
     ranked = await rank_candidates(candidates, timeout=1, concurrency=2, keep=3)
     assert [row["host"] for row in ranked[:2]] == ["one.example", "two.example"]
     assert all(row["check_method"] == "mtproto" for row in ranked)
+    assert all(row["checks_passed"] == 2 for row in ranked)
+
+
+@pytest.mark.asyncio
+async def test_rank_candidates_labels_valid_fake_tls_without_skipping_checks(monkeypatch):
+    fake_tls = "ee" + "a" * 32 + "example.com".encode().hex()
+    candidates = [
+        ProxyCandidate("classic.example", 443, "b" * 32),
+        ProxyCandidate("tls.example", 443, fake_tls),
+    ]
+
+    async def fake_latency(candidate, _timeout):
+        return 25 if candidate.host == "classic.example" else 50
+
+    monkeypatch.setattr("scripts.update_catalog.mtproto_latency", fake_latency)
+    ranked = await rank_candidates(candidates, timeout=1, concurrency=2, keep=2)
+    assert [row["host"] for row in ranked] == ["classic.example", "tls.example"]
+    assert ranked[1]["secret_format"] == "fake-tls"
+    assert ranked[1]["fake_tls_domain"] == "example.com"
     assert all(row["checks_passed"] == 2 for row in ranked)
 
 
@@ -171,7 +203,7 @@ def test_ui_contains_resilience_flow():
     assert 'Настроить 3 резерва' in PAGE
     assert 'Auto-Switch' in PAGE
     assert 'proxyPilotBlockedV1' in PAGE
-    assert 'Новые подключения приостановлены' in PAGE
+    assert 'Сейчас нет ни одного доступного адреса' in PAGE
     assert 'Как пользоваться' in PAGE
     assert 'Частые вопросы' in PAGE
     assert 'Добавьте 3 прокси по одному' in PAGE
@@ -179,7 +211,7 @@ def test_ui_contains_resilience_flow():
     assert 'Добавить только один прокси' not in PAGE
     assert 'Что такое Auto-Switch и как его включить?' in PAGE
     assert 'for(const number of [3,2,1])' in PAGE
-    assert "wizardCompleted===3" in PAGE
+    assert "wizardCompleted>=3" in PAGE
     assert "wizardPhase!=='awaiting-confirmation'" in PAGE
     assert 'vinyl-disc' in PAGE
     assert 'tonearm' in PAGE
@@ -205,6 +237,16 @@ def test_ui_contains_resilience_flow():
     assert 'Ссылки становятся нажимаемыми после отправки сообщения' in PAGE
     assert 'Выбрать «Избранное» и отправить' in PAGE
     assert 'До отправки ссылки не нажимаются' in PAGE
+    assert 'Как работает прокси' in PAGE
+    assert 'Прокси — как объездная дорога до Telegram' in PAGE
+    assert 'Оператор' in PAGE
+    assert 'Страна и регион' in PAGE
+    assert 'Wi‑Fi или мобильная сеть' in PAGE
+    assert 'Почему один прокси работает не у всех?' in PAGE
+    assert 'не обязательно сломан навсегда' in PAGE
+    assert 'Что означает ключ EE' in PAGE
+    assert 'формат Fake‑TLS' in PAGE
+    assert 'transportText' in PAGE
     assert 'Поделиться приложением' in PAGE
     assert 'Задонатить' in PAGE
     assert 'shareApplication' in PAGE
@@ -213,6 +255,11 @@ def test_ui_contains_resilience_flow():
     assert 'themeToggle' in PAGE
     assert 'data-theme="dark"' in PAGE
     assert 'startWizard()' in PAGE
+    assert 'proxyPilotPartialSetupV1' in PAGE
+    assert 'savePartialProgress()' in PAGE
+    assert 'Прогресс сохранён' in PAGE
+    assert "async function startWizard(){if(wizardPhase==='count-in'" in PAGE
+    assert "const protectedMode=!configured&&available===0" in PAGE
     assert 'Один активен' not in PAGE
     assert 'подключено автоматически' not in PAGE.lower()
     assert 'Прокси отключён' not in PAGE

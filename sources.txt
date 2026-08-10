@@ -1,3 +1,5 @@
 # One public HTTPS source per line. HTML, JSON and plain-text pages are supported.
 https://raw.githubusercontent.com/SoliSpirit/mtproto/master/all_proxies.txt
 https://www.mtproto.shop/proxies.json
+# MIT-licensed, independently maintained list; every candidate is still checked twice.
+https://raw.githubusercontent.com/ALIILAPRO/MTProtoProxy/main/mtproto.txt

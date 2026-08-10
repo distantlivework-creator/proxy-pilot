@@ -23,6 +23,47 @@ USER_AGENT = "ProxyPilot/0.2 (+https://github.com/)"
 DEFAULT_PREVIOUS_URL = "https://distantlivework-creator.github.io/proxy-pilot/data/proxies.json"
 
 
+def fake_tls_domain(secret: str) -> str | None:
+    """Return the SNI domain from a well-formed hex Fake-TLS secret.
+
+    Telegram's Fake-TLS link format is ``ee`` + a 16-byte secret + the
+    domain encoded as hex.  Merely starting with the two characters ``ee``
+    is not enough: malformed pseudo-EE links have caused compatibility
+    differences between Telegram clients.
+    """
+    normalized = secret.strip().lower()
+    if not normalized.startswith("ee") or len(normalized) <= 34:
+        return None
+    core, encoded_domain = normalized[2:34], normalized[34:]
+    if len(encoded_domain) % 2:
+        return None
+    try:
+        bytes.fromhex(core)
+        domain = bytes.fromhex(encoded_domain).decode("ascii")
+    except (ValueError, UnicodeDecodeError):
+        return None
+    domain = domain.rstrip(".").lower()
+    if not domain or len(domain) > 253 or "." not in domain:
+        return None
+    labels = domain.split(".")
+    if any(
+        not label
+        or len(label) > 63
+        or label[0] == "-"
+        or label[-1] == "-"
+        or any(not (char.isalnum() or char == "-") for char in label)
+        for label in labels
+    ):
+        return None
+    return domain
+
+
+def transport_mode(secret: str) -> str:
+    if fake_tls_domain(secret):
+        return "fake-tls"
+    return "random-padding" if secret.lower().startswith("dd") else "classic"
+
+
 def read_sources(path: Path) -> list[str]:
     return [
         line.strip()
@@ -123,6 +164,9 @@ async def rank_candidates(
         row = asdict(candidate)
         row["latency_ms"] = latency
         row["check_method"] = "mtproto"
+        row["secret_format"] = transport_mode(candidate.secret)
+        if row["secret_format"] == "fake-tls":
+            row["fake_tls_domain"] = fake_tls_domain(candidate.secret)
         row["link"] = candidate.share_url()
         row["key"] = candidate.key
         return row
@@ -193,7 +237,10 @@ async def rank_candidates(
     result = [row for row in confirmed if row is not None]
     result.sort(
         key=lambda row: (
-            -row["success_streak"], row.get("_diversity", 1), row["latency_ms"], row["host"]
+            -row["success_streak"],
+            row.get("_diversity", 1),
+            row["latency_ms"],
+            row["host"],
         )
     )
     for row in result:
