@@ -293,6 +293,16 @@ def test_service_worker_forces_fresh_navigation_and_updates_immediately():
     assert "controllerchange" in PAGE
 
 
+def test_faq_is_a_responsive_three_two_one_slider():
+    assert "className='faq-slider'" in PAGE
+    assert "flex:0 0 calc((100% - 28px)/3)" in PAGE
+    assert "flex-basis:calc((100% - 14px)/2)" in PAGE
+    assert "flex-basis:100%" in PAGE
+    assert "faqPrev.onclick=()=>moveFaq(-1)" in PAGE
+    assert "faqNext.onclick=()=>moveFaq(1)" in PAGE
+    assert "faqItems.forEach(other=>{if(other!==item)" in PAGE
+
+
 def test_language_toggle_translates_the_whole_interface():
     assert "proxyPilotLanguageV1" in PAGE
     assert "langToggle.className='lang-btn'" in PAGE
