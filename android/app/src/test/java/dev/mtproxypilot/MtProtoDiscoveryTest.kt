@@ -4,6 +4,7 @@ import dev.mtproxypilot.domain.Availability
 import dev.mtproxypilot.domain.ChannelCursor
 import dev.mtproxypilot.domain.MtProtoLinkParser
 import dev.mtproxypilot.domain.MtProtoProxy
+import dev.mtproxypilot.domain.NewProxyUpdateScanner
 import dev.mtproxypilot.domain.ProxyAvailabilityPolicy
 import dev.mtproxypilot.domain.TelegramChannelMessage
 import org.junit.Assert.assertEquals
@@ -59,5 +60,18 @@ class MtProtoDiscoveryTest {
         assertEquals(1_100L, stable.medianLatencyMs)
         assertEquals(Availability.UNSTABLE, unstable.availability)
         assertEquals(Availability.UNAVAILABLE, dead.availability)
+    }
+
+    @Test
+    fun scannerIgnoresOldAndUnsubscribedMessagesButAcceptsNewChannelPost() {
+        val scanner = NewProxyUpdateScanner(
+            mapOf(10L to ChannelCursor(startedAtEpochSeconds = 1_000, lastMessageId = 50))
+        )
+        val link = "https://t.me/proxy?server=proxy.example&port=443&secret=$secret"
+
+        assertTrue(scanner.accept(TelegramChannelMessage(99, 51, 1_001, link)).isEmpty())
+        assertTrue(scanner.accept(TelegramChannelMessage(10, 49, 1_001, link)).isEmpty())
+        assertEquals(1, scanner.accept(TelegramChannelMessage(10, 51, 1_001, link)).size)
+        assertEquals(51, scanner.cursor(10)?.lastMessageId)
     }
 }
