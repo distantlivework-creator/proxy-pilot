@@ -34,9 +34,7 @@ class PilotApi {
     }
 
     fun requestSync(serverUrl: String) {
-        request("${normalizeServerUrl(serverUrl)}/api/sync", "POST").use { connection ->
-            connection.inputStream.bufferedReader().use { it.readText() }
-        }
+        readText("${normalizeServerUrl(serverUrl)}/api/sync", "POST")
     }
 
     private fun proxyUrl(proxy: JSONObject): String = Uri.Builder()
@@ -47,13 +45,18 @@ class PilotApi {
         .appendQueryParameter("secret", proxy.getString("secret"))
         .build().toString()
 
-    private fun getJson(url: String) = JSONObject(
-        request(url).use { it.inputStream.bufferedReader().use { reader -> reader.readText() } }
-    )
+    private fun getJson(url: String) = JSONObject(readText(url))
 
-    private fun getJsonArray(url: String) = org.json.JSONArray(
-        request(url).use { it.inputStream.bufferedReader().use { reader -> reader.readText() } }
-    )
+    private fun getJsonArray(url: String) = org.json.JSONArray(readText(url))
+
+    private fun readText(url: String, method: String = "GET"): String {
+        val connection = request(url, method)
+        return try {
+            connection.inputStream.bufferedReader().use { it.readText() }
+        } finally {
+            connection.disconnect()
+        }
+    }
 
     private fun request(url: String, method: String = "GET"): HttpURLConnection {
         val connection = URL(url).openConnection() as HttpURLConnection
@@ -82,4 +85,3 @@ class PilotApi {
         }
     }
 }
-
