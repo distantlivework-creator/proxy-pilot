@@ -285,6 +285,14 @@ def test_vinyl_is_visual_only_without_music_artifacts():
     assert "classList.toggle('persistent'" in PAGE
 
 
+def test_service_worker_forces_fresh_navigation_and_updates_immediately():
+    worker = (Path(__file__).resolve().parents[1] / "app" / "static" / "sw.js").read_text()
+    assert 'proxy-pilot-v10' in worker
+    assert 'event.request.mode === "navigate" ? "no-store"' in worker
+    assert "updateViaCache:'none'" in PAGE
+    assert "controllerchange" in PAGE
+
+
 def test_language_toggle_translates_the_whole_interface():
     assert "proxyPilotLanguageV1" in PAGE
     assert "langToggle.className='lang-btn'" in PAGE

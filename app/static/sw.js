@@ -1,4 +1,4 @@
-const CACHE = "proxy-pilot-v9";
+const CACHE = "proxy-pilot-v10";
 const SHELL = ["./", "./manifest.webmanifest", "./static/icon-192.png", "./static/icon-512.png"];
 
 self.addEventListener("install", event => {
@@ -16,10 +16,12 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET" || new URL(event.request.url).pathname.startsWith("/api/")) return;
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: event.request.mode === "navigate" ? "no-store" : "default" })
       .then(response => {
-        const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        }
         return response;
       })
       .catch(() => caches.match(event.request).then(hit => hit || caches.match("./")))
