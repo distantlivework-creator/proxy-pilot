@@ -72,6 +72,6 @@ class MtProtoDiscoveryTest {
         assertTrue(scanner.accept(TelegramChannelMessage(99, 51, 1_001, link)).isEmpty())
         assertTrue(scanner.accept(TelegramChannelMessage(10, 49, 1_001, link)).isEmpty())
         assertEquals(1, scanner.accept(TelegramChannelMessage(10, 51, 1_001, link)).size)
-        assertEquals(51, scanner.cursor(10)?.lastMessageId)
+        assertEquals(51L, scanner.cursor(10)?.lastMessageId)
     }
 }
