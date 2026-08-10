@@ -266,3 +266,20 @@ def test_ui_contains_resilience_flow():
     assert 'Один активен' not in PAGE
     assert 'подключено автоматически' not in PAGE.lower()
     assert 'Прокси отключён' not in PAGE
+
+
+def test_vinyl_music_is_opt_in_and_has_twenty_tracks():
+    assert "let soundEnabled=false" in PAGE
+    assert "proxyPilotSoundV1" in PAGE
+    assert "proxyPilotVolumeV1" in PAGE
+    assert "proxyPilotTrackV1" in PAGE
+    assert "window.AudioContext||window.webkitAudioContext" in PAGE
+    assert "TRACKS=['Northern Signal'" in PAGE
+    assert "'Pilot Home']" in PAGE
+    assert "TRACK ${String(activeTrack+1).padStart(2,'0')} / ${TRACKS.length}" in PAGE
+    assert 'Предыдущая дорожка' in PAGE
+    assert 'Следующая дорожка' in PAGE
+    assert 'type="range" min="0" max="100"' in PAGE
+    assert "style.setProperty('--needle-shift'" in PAGE
+    assert "if(musicStep>=512)" in PAGE
+    assert "https://" not in PAGE[PAGE.index("const TRACKS="):PAGE.index("async function api")]
