@@ -1,0 +1,62 @@
+name: Android APK with official TDLib
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TDLIB_COMMIT: 022d60202e446ad1287b9fb68e687c8a0760788b
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Check out pinned official TDLib build definition
+        run: |
+          git clone --filter=blob:none https://github.com/tdlib/td.git tdlib-source
+          git -C tdlib-source checkout "$TDLIB_COMMIT"
+      - name: Build official TDLib JSONJava libraries
+        uses: docker/build-push-action@v6
+        with:
+          context: tdlib-source/example/android
+          push: false
+          build-args: |
+            COMMIT_HASH=${{ env.TDLIB_COMMIT }}
+            TDLIB_INTERFACE=JSONJava
+          outputs: type=local,dest=tdlib-output
+          cache-from: type=gha,scope=tdlib-android-jsonjava
+          cache-to: type=gha,mode=max,scope=tdlib-android-jsonjava
+      - name: Add TDLib to the Android application
+        run: |
+          unzip -q tdlib-output/tdlib.zip -d tdlib-unpacked
+          mkdir -p android/app/src/main/jniLibs
+          cp -R tdlib-unpacked/tdlib/java/. android/app/src/main/java/
+          cp -R tdlib-unpacked/tdlib/libs/. android/app/src/main/jniLibs/
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - name: Test, lint and build TDLib APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: proxy-pilot-android-tdlib-preview
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pinned-official-tdlib-jsonjava
+          path: tdlib-output/tdlib.zip
+          if-no-files-found: error

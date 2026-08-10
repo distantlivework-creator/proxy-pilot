@@ -38,6 +38,6 @@ jobs:
           ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: proxy-pilot-android-prototype
+          name: proxy-pilot-android-shell-no-tdlib
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
