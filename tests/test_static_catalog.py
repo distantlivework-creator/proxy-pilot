@@ -301,6 +301,9 @@ def test_faq_is_a_responsive_three_two_one_slider():
     assert "faqPrev.onclick=()=>moveFaq(-1)" in PAGE
     assert "faqNext.onclick=()=>moveFaq(1)" in PAGE
     assert "faqItems.forEach(other=>{if(other!==item)" in PAGE
+    assert "aspect-ratio:1/1" in PAGE
+    assert ".faq-rack details[open] p{position:absolute;inset:84px 0 58px" in PAGE
+    assert ".faq-collapse{display:none;position:absolute" in PAGE
 
 
 def test_language_toggle_translates_the_whole_interface():
