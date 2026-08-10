@@ -8,6 +8,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -22,6 +25,8 @@ class ReflectiveTdJsonClient(
 ) : TdRawTransport, AutoCloseable {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val pending = ConcurrentHashMap<String, CompletableDeferred<String>>()
+    private val _updates = MutableSharedFlow<String>(extraBufferCapacity = 256)
+    override val updates: SharedFlow<String> = _updates.asSharedFlow()
     private val jsonClient = Class.forName("org.drinkless.tdlib.JsonClient")
     private val clientId = invokeInt(jsonClient.getMethod("createClientId"))
     private val send: Method = jsonClient.getMethod(
@@ -53,6 +58,7 @@ class ReflectiveTdJsonClient(
             val raw = runCatching { receive.invoke(null, 1.0) as? String }.getOrNull() ?: continue
             val extra = runCatching { JSONObject(raw).optString("@extra") }.getOrNull()
             if (!extra.isNullOrBlank()) pending.remove(extra)?.complete(raw)
+            else _updates.emit(raw)
         }
     }
 
