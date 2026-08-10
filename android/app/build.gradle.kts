@@ -3,6 +3,11 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val telegramApiId = providers.environmentVariable("TELEGRAM_API_ID").orNull?.toIntOrNull() ?: 0
+val telegramApiHash = providers.environmentVariable("TELEGRAM_API_HASH").orNull.orEmpty()
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
+
 android {
     namespace = "dev.mtproxypilot"
     compileSdk = 36
@@ -11,13 +16,18 @@ android {
         applicationId = "dev.mtproxypilot"
         minSdk = 23
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("int", "TELEGRAM_API_ID", telegramApiId.toString())
+        buildConfigField("String", "TELEGRAM_API_HASH", "\"$telegramApiHash\"")
     }
 
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
