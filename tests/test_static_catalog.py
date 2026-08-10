@@ -244,6 +244,9 @@ def test_ui_contains_resilience_flow():
     assert 'Wi‑Fi или мобильная сеть' in PAGE
     assert 'Почему один прокси работает не у всех?' in PAGE
     assert 'не обязательно сломан навсегда' in PAGE
+    assert 'Чем MTProto Proxy отличается от VPN?' in PAGE
+    assert 'отдельная объездная полоса только для Telegram' in PAGE
+    assert 'не защищает и не перенаправляет весь трафик' in PAGE
     assert 'Что означает ключ EE' in PAGE
     assert 'формат Fake‑TLS' in PAGE
     assert 'transportText' in PAGE
