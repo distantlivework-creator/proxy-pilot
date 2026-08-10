@@ -16,7 +16,7 @@ class TdLibMessageDecoderTest {
         val message = TdLibNewMessageDecoder.decode(update)
 
         assertEquals(77L, message?.messageId)
-        assertEquals(-1001L, message?.chatId)
+        assertEquals(-1001L, message?.channelId)
         assertEquals("new proxy", message?.text)
     }
 

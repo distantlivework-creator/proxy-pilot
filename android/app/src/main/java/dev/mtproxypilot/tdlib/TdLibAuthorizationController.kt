@@ -44,8 +44,8 @@ class TdLibAuthorizationController(
         if (updatesJob != null) return
         updatesJob = scope.launch { transport.updates.collect(::handleUpdate) }
         scope.launch {
-            runRequest(JSONObject().put("@type", "getAuthorizationState"))
-                ?.let(::handleAuthorizationState)
+            val state = runRequest(JSONObject().put("@type", "getAuthorizationState"))
+            if (state != null) handleAuthorizationState(state)
         }
     }
 

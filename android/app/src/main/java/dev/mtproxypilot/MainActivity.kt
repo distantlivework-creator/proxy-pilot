@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -71,7 +70,7 @@ class MainActivity : ComponentActivity() {
                     onSubmitPhone = model::submitPhone,
                     onSubmitCode = model::submitCode,
                     onSubmitPassword = model::submitPassword,
-                    onOpenProxy = { openTelegram(it.proxy.tgDeepLink()) },
+                    onOpenProxy = { openTelegram(it.proxy.telegramUrl()) },
                 )
             }
         }
@@ -197,7 +196,7 @@ private fun MonitoringScreen(state: MainUiState, onOpenProxy: (ProxyAvailability
         Spacer(Modifier.height(18.dp))
     }
     if (state.results.isEmpty()) {
-        Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
                 "Ждём новый пост со ссылкой MTProto.\nКогда он появится, проверка начнётся автоматически.",
                 color = Muted,

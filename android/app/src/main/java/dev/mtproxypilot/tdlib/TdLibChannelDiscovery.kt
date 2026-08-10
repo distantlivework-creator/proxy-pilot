@@ -72,7 +72,7 @@ object TdLibNewMessageDecoder {
         val text = extractText(content).trim()
         if (text.isEmpty()) return null
         return TelegramChannelMessage(
-            chatId = message.optLong("chat_id"),
+            channelId = message.optLong("chat_id"),
             messageId = message.optLong("id"),
             dateEpochSeconds = message.optLong("date"),
             text = text,

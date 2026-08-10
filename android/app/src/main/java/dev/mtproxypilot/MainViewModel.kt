@@ -79,7 +79,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             transport = client,
             scope = viewModelScope,
             credentials = TdLibCredentials(BuildConfig.TELEGRAM_API_ID, BuildConfig.TELEGRAM_API_HASH),
-            databaseDirectory = application.getDir("tdlib", Application.MODE_PRIVATE),
+            databaseDirectory = getApplication<Application>().getDir("tdlib", Application.MODE_PRIVATE),
             languageCode = Locale.getDefault().toLanguageTag(),
             deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}".trim(),
             systemVersion = "Android ${Build.VERSION.RELEASE}",

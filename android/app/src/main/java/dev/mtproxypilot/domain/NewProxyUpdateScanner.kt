@@ -6,9 +6,9 @@ class NewProxyUpdateScanner(
     private val cursors = subscriptions.toMutableMap()
 
     fun accept(message: TelegramChannelMessage): List<MtProtoProxy> {
-        val cursor = cursors[message.chatId] ?: return emptyList()
+        val cursor = cursors[message.channelId] ?: return emptyList()
         if (!cursor.accepts(message)) return emptyList()
-        cursors[message.chatId] = cursor.advance(message)
+        cursors[message.channelId] = cursor.advance(message)
         return MtProtoLinkParser.parseAll(message.text)
     }
 
