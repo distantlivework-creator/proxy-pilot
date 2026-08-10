@@ -31,7 +31,7 @@ jobs:
           cache: gradle
       - uses: android-actions/setup-android@v3
       - name: Install Android SDK
-        run: sdkmanager "platform-tools" "platforms;android-37" "build-tools;37.0.0"
+        run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
       - name: Test and build prototype
         run: |
           chmod +x gradlew
@@ -41,4 +41,3 @@ jobs:
           name: proxy-pilot-android-prototype
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-
