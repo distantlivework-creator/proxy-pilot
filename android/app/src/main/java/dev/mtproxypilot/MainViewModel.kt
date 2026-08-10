@@ -17,7 +17,6 @@ import dev.mtproxypilot.tdlib.TdLibNewMessageDecoder
 import dev.mtproxypilot.tdlib.TdLibProxyChecker
 import dev.mtproxypilot.tdlib.TdLibSubscribedChannelSource
 import dev.mtproxypilot.tdlib.TelegramLoginState
-import java.time.Instant
 import java.util.Locale
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -111,7 +110,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private suspend fun startMonitoring() {
         if (monitorJob != null) return
         val client = transport ?: return
-        val startedAt = Instant.now().epochSecond
+        val startedAt = System.currentTimeMillis() / 1_000
         val subscriptions = runCatching { TdLibSubscribedChannelSource(client).list() }
             .getOrElse { failure ->
                 _uiState.update {
