@@ -257,6 +257,11 @@ def test_ui_contains_resilience_flow():
     assert 'Поделиться приложением' in PAGE
     assert 'Задонатить' in PAGE
     assert 'shareApplication' in PAGE
+    assert 'id="androidDownload"' in PAGE
+    assert 'Proxy-Pilot-Android.apk' in PAGE
+    assert 'Скачать для Android' in PAGE
+    assert 'class="android-download"' in PAGE
+    assert 'download hidden' in PAGE
     assert 'ничего не списывает' in PAGE
     assert 'proxyPilotThemeV1' in PAGE
     assert 'themeToggle' in PAGE
