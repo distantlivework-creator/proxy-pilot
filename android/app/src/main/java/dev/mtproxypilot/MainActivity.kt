@@ -41,6 +41,7 @@ import androidx.compose.material.icons.rounded.AddLink
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.MoreHoriz
+import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -105,6 +106,7 @@ class MainActivity : ComponentActivity() {
                     onRefresh = model::refreshCatalog,
                     onDismissSharedMessage = model::dismissSharedMessage,
                     onOpenProxy = { openTelegram(it.proxy.telegramUrl()) },
+                    onCheckUpdates = { openWeb("https://distantlivework-creator.github.io/proxy-pilot/#androidDownload") },
                 )
             }
         }
@@ -129,6 +131,10 @@ class MainActivity : ComponentActivity() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url.replace("tg://proxy", "https://t.me/proxy"))))
         }
     }
+
+    private fun openWeb(url: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    }
 }
 
 @Composable
@@ -137,6 +143,7 @@ internal fun PilotScreen(
     onRefresh: () -> Unit,
     onDismissSharedMessage: () -> Unit,
     onOpenProxy: (ProxyAvailability) -> Unit,
+    onCheckUpdates: () -> Unit,
 ) {
     var showGuide by rememberSaveable { mutableStateOf(false) }
     var showAbout by rememberSaveable { mutableStateOf(false) }
@@ -156,6 +163,7 @@ internal fun PilotScreen(
                     onGuide = { showGuide = true },
                     onRefresh = onRefresh,
                     onAbout = { showAbout = true },
+                    onCheckUpdates = onCheckUpdates,
                 )
             }
             item { VinylHero(state) }
@@ -195,7 +203,12 @@ internal fun PilotScreen(
 }
 
 @Composable
-private fun PilotHeader(onGuide: () -> Unit, onRefresh: () -> Unit, onAbout: () -> Unit) {
+private fun PilotHeader(
+    onGuide: () -> Unit,
+    onRefresh: () -> Unit,
+    onAbout: () -> Unit,
+    onCheckUpdates: () -> Unit,
+) {
     var menuOpen by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
@@ -234,6 +247,11 @@ private fun PilotHeader(onGuide: () -> Unit, onRefresh: () -> Unit, onAbout: () 
                     text = { Text("Обновить каталог") },
                     leadingIcon = { Icon(Icons.Rounded.Refresh, null) },
                     onClick = { menuOpen = false; onRefresh() },
+                )
+                DropdownMenuItem(
+                    text = { Text("Проверить обновление") },
+                    leadingIcon = { Icon(Icons.Rounded.SystemUpdate, null) },
+                    onClick = { menuOpen = false; onCheckUpdates() },
                 )
                 DropdownMenuItem(
                     text = { Text("Как это работает") },
@@ -433,10 +451,10 @@ private fun Turntable(spinning: Boolean) {
             contentAlignment = Alignment.Center,
         ) {
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text("PP", color = DeckText, fontWeight = FontWeight.Black, fontSize = 25.sp)
+                Text("PP", color = Color.White, fontWeight = FontWeight.Black, fontSize = 25.sp)
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     listOf(8.dp, 15.dp, 22.dp).forEach { bar ->
-                        Box(Modifier.size(width = 4.dp, height = bar).background(DeckText, RoundedCornerShape(2.dp)))
+                        Box(Modifier.size(width = 4.dp, height = bar).background(Color.White, RoundedCornerShape(2.dp)))
                     }
                 }
             }

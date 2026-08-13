@@ -13,6 +13,7 @@ import dev.mtproxypilot.domain.Availability
 import dev.mtproxypilot.domain.MtProtoProxy
 import dev.mtproxypilot.domain.ProxyAvailability
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -33,6 +34,7 @@ class ProxyPilotScreenTest {
     @Test
     fun userOpensGuideAndChoosesReachableProxy() {
         var opened: ProxyAvailability? = null
+        var updateChecked = false
         compose.setContent {
             MaterialTheme {
                 PilotScreen(
@@ -44,6 +46,7 @@ class ProxyPilotScreenTest {
                     onRefresh = {},
                     onDismissSharedMessage = {},
                     onOpenProxy = { opened = it },
+                    onCheckUpdates = { updateChecked = true },
                 )
             }
         }
@@ -55,6 +58,9 @@ class ProxyPilotScreenTest {
         compose.onNodeWithText("Вход, регистрация и ваш Telegram-аккаунт не нужны.").assertIsDisplayed()
         captureScreen("proxy-pilot-guide.png")
         compose.onNodeWithTag("guideDone").performClick()
+        compose.onNodeWithTag("more").performClick()
+        compose.onNodeWithText("Проверить обновление").assertIsDisplayed().performClick()
+        assertTrue(updateChecked)
         compose.onNodeWithTag("mainScroll").performScrollToIndex(3)
         compose.onNodeWithTag("openProxy").assertIsDisplayed().performClick()
         captureScreen("proxy-pilot-user-flow.png")
@@ -75,6 +81,7 @@ class ProxyPilotScreenTest {
                     onRefresh = {},
                     onDismissSharedMessage = {},
                     onOpenProxy = {},
+                    onCheckUpdates = {},
                 )
             }
         }

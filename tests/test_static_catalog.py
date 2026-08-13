@@ -329,4 +329,8 @@ def test_language_toggle_translates_the_whole_interface():
     assert 'class="brand notranslate" translate="no"' in PAGE
     assert 'class="power-logo notranslate" translate="no"' in PAGE
     assert "function restoreBrand()" in PAGE
+    assert '.power-logo .signal i{background:#fff!important}' in PAGE
+    assert 'forced-color-adjust:none;color-scheme:only light' in PAGE
+    assert 'Android: скачать / проверить обновление' in PAGE
+    assert 'Android: download / check for updates' in PAGE
     assert "languageObserver.observe" in PAGE
