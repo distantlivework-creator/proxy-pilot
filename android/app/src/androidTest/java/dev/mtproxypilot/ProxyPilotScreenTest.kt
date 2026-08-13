@@ -87,5 +87,8 @@ class ProxyPilotScreenTest {
         FileOutputStream(output).use { stream ->
             instrumentation.uiAutomation.takeScreenshot().compress(Bitmap.CompressFormat.PNG, 100, stream)
         }
+        instrumentation.uiAutomation
+            .executeShellCommand("cp ${output.absolutePath} /sdcard/Download/$name")
+            .close()
     }
 }

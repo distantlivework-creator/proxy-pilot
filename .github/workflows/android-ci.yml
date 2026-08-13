@@ -74,8 +74,8 @@ jobs:
           script: |
             ./android/gradlew -p android :app:connectedDebugAndroidTest --stacktrace
             mkdir -p output/android-screen-test
-            adb pull /sdcard/Android/data/dev.mtproxypilot/files/proxy-pilot-guide.png output/android-screen-test/proxy-pilot-guide.png
-            adb pull /sdcard/Android/data/dev.mtproxypilot/files/proxy-pilot-user-flow.png output/android-screen-test/proxy-pilot-user-flow.png
+            adb pull /sdcard/Download/proxy-pilot-guide.png output/android-screen-test/proxy-pilot-guide.png
+            adb pull /sdcard/Download/proxy-pilot-user-flow.png output/android-screen-test/proxy-pilot-user-flow.png
       - uses: actions/upload-artifact@v4
         with:
           name: proxy-pilot-android-screen-proof
