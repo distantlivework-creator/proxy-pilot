@@ -325,4 +325,5 @@ def test_language_toggle_translates_the_whole_interface():
     assert "'Как пользоваться':'How to use Proxy Pilot'" in PAGE
     assert "'Три прокси отмечены как добавленные':'Three proxies marked as added'" in PAGE
     assert "'Статус и Auto-Switch проверьте в Telegram':'Check status and Auto-Switch in Telegram'" in PAGE
+    assert '.hero h1,.guide-card strong{font-family:Inter,ui-rounded' in PAGE
     assert "languageObserver.observe" in PAGE
