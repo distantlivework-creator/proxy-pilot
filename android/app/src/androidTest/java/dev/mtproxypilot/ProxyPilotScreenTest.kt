@@ -51,6 +51,7 @@ class ProxyPilotScreenTest {
         compose.onNodeWithTag("guide").performClick()
         compose.onNodeWithTag("guideDialog").assertIsDisplayed()
         compose.onNodeWithText("Вход, регистрация и ваш Telegram-аккаунт не нужны.").assertIsDisplayed()
+        captureScreen("proxy-pilot-guide.png")
         compose.onNodeWithTag("guideDone").performClick()
         compose.onNodeWithTag("openProxy").performClick()
         captureScreen("proxy-pilot-user-flow.png")
