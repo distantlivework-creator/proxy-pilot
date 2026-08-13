@@ -76,6 +76,14 @@ jobs:
             mkdir -p output/android-screen-test
             adb pull /sdcard/Download/proxy-pilot-guide.png output/android-screen-test/proxy-pilot-guide.png
             adb pull /sdcard/Download/proxy-pilot-user-flow.png output/android-screen-test/proxy-pilot-user-flow.png
+            adb shell wm size 720x1280
+            adb shell wm density 360
+            adb shell settings put system font_scale 1.5
+            adb shell am force-stop dev.mtproxypilot.test || true
+            adb shell am force-stop dev.mtproxypilot || true
+            ./android/gradlew -p android :app:connectedDebugAndroidTest --stacktrace
+            adb pull /sdcard/Download/proxy-pilot-guide.png output/android-screen-test/proxy-pilot-guide-compact-large-font.png
+            adb pull /sdcard/Download/proxy-pilot-user-flow.png output/android-screen-test/proxy-pilot-user-flow-compact-large-font.png
             adb install -r android/app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop dev.mtproxypilot
             adb shell am start -n dev.mtproxypilot/.MainActivity
