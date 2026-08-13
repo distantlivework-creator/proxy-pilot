@@ -93,7 +93,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             return
         }
-        val fresh = parsed.filter { candidates.putIfAbsent(it.key, it) == null }
+        val fresh = parsed.filter { proxy ->
+            if (candidates.containsKey(proxy.key)) {
+                false
+            } else {
+                candidates[proxy.key] = proxy
+                true
+            }
+        }
         _uiState.update {
             it.copy(
                 stage = AppStage.READY,
