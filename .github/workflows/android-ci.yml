@@ -38,6 +38,44 @@ jobs:
           ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: proxy-pilot-android-shell-no-tdlib
+          name: proxy-pilot-android-device-checker
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+  screen-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+      - uses: android-actions/setup-android@v3
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run real screen flow on Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            cd android
+            ./gradlew :app:connectedDebugAndroidTest --stacktrace
+            mkdir -p ../output/android-screen-test
+            adb pull /sdcard/Android/data/dev.mtproxypilot/files/proxy-pilot-user-flow.png ../output/android-screen-test/proxy-pilot-user-flow.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: proxy-pilot-android-screen-proof
+          path: output/android-screen-test/proxy-pilot-user-flow.png
           if-no-files-found: error

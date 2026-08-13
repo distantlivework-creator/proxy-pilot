@@ -1,165 +1,143 @@
 package dev.mtproxypilot
 
 import android.app.Application
-import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.mtproxypilot.data.ProxyCatalogRepository
+import dev.mtproxypilot.data.TcpProxyChecker
 import dev.mtproxypilot.domain.Availability
-import dev.mtproxypilot.domain.ChannelCursor
+import dev.mtproxypilot.domain.MtProtoLinkParser
 import dev.mtproxypilot.domain.MtProtoProxy
-import dev.mtproxypilot.domain.NewProxyUpdateScanner
-import dev.mtproxypilot.domain.ProxyAvailabilityPolicy
 import dev.mtproxypilot.domain.ProxyAvailability
-import dev.mtproxypilot.tdlib.ReflectiveTdJsonClient
-import dev.mtproxypilot.tdlib.TdLibAuthorizationController
-import dev.mtproxypilot.tdlib.TdLibCredentials
-import dev.mtproxypilot.tdlib.TdLibNewMessageDecoder
-import dev.mtproxypilot.tdlib.TdLibProxyChecker
-import dev.mtproxypilot.tdlib.TdLibSubscribedChannelSource
-import dev.mtproxypilot.tdlib.TelegramLoginState
-import java.util.Locale
-import kotlinx.coroutines.Job
+import dev.mtproxypilot.domain.ProxyAvailabilityPolicy
+import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 
-enum class AppStage {
-    CONFIGURATION_REQUIRED,
-    TDLIB_MISSING,
-    STARTING,
-    PHONE,
-    CODE,
-    PASSWORD,
-    MONITORING,
-    UNSUPPORTED,
-}
+enum class AppStage { LOADING, READY, ERROR }
 
 data class MainUiState(
-    val stage: AppStage = AppStage.STARTING,
-    val channelsCount: Int = 0,
+    val stage: AppStage = AppStage.LOADING,
     val results: List<ProxyAvailability> = emptyList(),
     val checksInProgress: Int = 0,
+    val totalCandidates: Int = 0,
+    val catalogUpdatedAt: String? = null,
+    val sharedLinksAdded: Int = 0,
+    val sharedMessage: String? = null,
     val error: String? = null,
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = ProxyCatalogRepository()
+    private val checker = TcpProxyChecker()
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
-    private var transport: ReflectiveTdJsonClient? = null
-    private var controller: TdLibAuthorizationController? = null
-    private var monitorJob: Job? = null
-    private var scanner: NewProxyUpdateScanner? = null
+    private val candidates = LinkedHashMap<String, MtProtoProxy>()
+    private val results = ConcurrentHashMap<String, ProxyAvailability>()
+    private var refreshGeneration = 0
 
     init {
-        initialize()
+        refreshCatalog()
     }
 
-    fun submitPhone(value: String) = controller?.submitPhoneNumber(value)
-    fun submitCode(value: String) = controller?.submitCode(value)
-    fun submitPassword(value: String) = controller?.submitPassword(value)
-
-    private fun initialize() {
-        if (BuildConfig.TELEGRAM_API_ID <= 0 || BuildConfig.TELEGRAM_API_HASH.isBlank()) {
-            _uiState.value = MainUiState(stage = AppStage.CONFIGURATION_REQUIRED)
-            return
-        }
-        val client = runCatching { ReflectiveTdJsonClient() }.getOrElse {
-            _uiState.value = MainUiState(
-                stage = AppStage.TDLIB_MISSING,
-                error = "В эту сборку не встроена официальная библиотека TDLib",
-            )
-            return
-        }
-        transport = client
-        controller = TdLibAuthorizationController(
-            transport = client,
-            scope = viewModelScope,
-            credentials = TdLibCredentials(BuildConfig.TELEGRAM_API_ID, BuildConfig.TELEGRAM_API_HASH),
-            databaseDirectory = getApplication<Application>().getDir("tdlib", Application.MODE_PRIVATE),
-            languageCode = Locale.getDefault().toLanguageTag(),
-            deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}".trim(),
-            systemVersion = "Android ${Build.VERSION.RELEASE}",
-        ).also { auth ->
-            viewModelScope.launch {
-                auth.state.collect(::renderLoginState)
-            }
-            auth.start()
-        }
-    }
-
-    private suspend fun renderLoginState(login: TelegramLoginState) {
-        when (login) {
-            TelegramLoginState.Starting -> _uiState.update { it.copy(stage = AppStage.STARTING) }
-            TelegramLoginState.PhoneNumber -> _uiState.update { it.copy(stage = AppStage.PHONE, error = null) }
-            TelegramLoginState.Code -> _uiState.update { it.copy(stage = AppStage.CODE, error = null) }
-            TelegramLoginState.Password -> _uiState.update { it.copy(stage = AppStage.PASSWORD, error = null) }
-            TelegramLoginState.Ready -> startMonitoring()
-            is TelegramLoginState.Failed -> _uiState.update { it.copy(error = login.message) }
-            is TelegramLoginState.OtherDevice -> _uiState.update {
-                it.copy(stage = AppStage.UNSUPPORTED, error = "Откройте Telegram и подтвердите вход: ${login.link}")
-            }
-            is TelegramLoginState.Unsupported -> _uiState.update {
-                it.copy(stage = AppStage.UNSUPPORTED, error = login.reason)
-            }
-        }
-    }
-
-    private suspend fun startMonitoring() {
-        if (monitorJob != null) return
-        val client = transport ?: return
-        val startedAt = System.currentTimeMillis() / 1_000
-        val subscriptions = runCatching { TdLibSubscribedChannelSource(client).list() }
-            .getOrElse { failure ->
-                _uiState.update {
-                    it.copy(stage = AppStage.MONITORING, error = failure.message ?: "Не удалось загрузить каналы")
-                }
-                emptyList()
-            }
-        scanner = NewProxyUpdateScanner(
-            subscriptions.associate { channel ->
-                channel.chatId to ChannelCursor(startedAt, channel.latestMessageId)
-            }
-        )
-        _uiState.update {
-            it.copy(stage = AppStage.MONITORING, channelsCount = subscriptions.size, error = null)
-        }
-        val checker = TdLibProxyChecker(client)
-        monitorJob = viewModelScope.launch {
-            client.updates.collect { raw ->
-                val message = TdLibNewMessageDecoder.decode(raw) ?: return@collect
-                scanner?.accept(message).orEmpty().forEach { proxy -> checkProxy(checker, proxy) }
-            }
-        }
-    }
-
-    private fun checkProxy(checker: TdLibProxyChecker, proxy: MtProtoProxy) {
-        if (_uiState.value.results.any { it.proxy.key == proxy.key }) return
+    fun refreshCatalog() {
+        val generation = ++refreshGeneration
         viewModelScope.launch {
-            _uiState.update { it.copy(checksInProgress = it.checksInProgress + 1) }
-            val samples = buildList<Long?> {
-                repeat(3) { index ->
-                    add(runCatching { checker.ping(proxy) }.getOrNull())
-                    if (index < 2) delay(350)
+            _uiState.update {
+                it.copy(stage = AppStage.LOADING, checksInProgress = 0, error = null, sharedMessage = null)
+            }
+            runCatching { withContext(Dispatchers.IO) { repository.load() } }
+                .onSuccess { catalog ->
+                    if (generation != refreshGeneration) return@onSuccess
+                    candidates.clear()
+                    results.clear()
+                    catalog.proxies.forEach { candidates[it.key] = it }
+                    _uiState.update {
+                        it.copy(
+                            stage = AppStage.READY,
+                            totalCandidates = candidates.size,
+                            catalogUpdatedAt = catalog.updatedAt,
+                            results = emptyList(),
+                        )
+                    }
+                    checkAll(candidates.values.toList(), generation)
                 }
-            }
-            val result = ProxyAvailabilityPolicy.evaluate(proxy, samples)
-            _uiState.update { state ->
-                val retained = (state.results + result)
-                    .filter { it.availability != Availability.UNAVAILABLE }
-                    .sortedWith(
-                        compareByDescending<ProxyAvailability> { it.availability == Availability.AVAILABLE }
-                            .thenBy { it.medianLatencyMs ?: Long.MAX_VALUE }
-                    )
-                state.copy(results = retained, checksInProgress = (state.checksInProgress - 1).coerceAtLeast(0))
-            }
+                .onFailure { failure ->
+                    if (generation == refreshGeneration) {
+                        _uiState.update {
+                            it.copy(
+                                stage = AppStage.ERROR,
+                                error = failure.message ?: "Не удалось загрузить каталог",
+                            )
+                        }
+                    }
+                }
         }
     }
 
-    override fun onCleared() {
-        transport?.close()
-        super.onCleared()
+    fun addSharedText(text: String?) {
+        val parsed = text?.let(MtProtoLinkParser::parseAll).orEmpty()
+        if (parsed.isEmpty()) {
+            _uiState.update {
+                it.copy(sharedLinksAdded = 0, sharedMessage = "В сообщении нет ссылок MTProto Proxy")
+            }
+            return
+        }
+        val fresh = parsed.filter { candidates.putIfAbsent(it.key, it) == null }
+        _uiState.update {
+            it.copy(
+                stage = AppStage.READY,
+                totalCandidates = candidates.size,
+                sharedLinksAdded = parsed.size,
+                sharedMessage = "Получено из Telegram: ${parsed.size}. Проверяем с этого устройства.",
+            )
+        }
+        if (fresh.isNotEmpty()) checkAll(fresh, refreshGeneration)
+    }
+
+    fun dismissSharedMessage() {
+        _uiState.update { it.copy(sharedMessage = null) }
+    }
+
+    private fun checkAll(proxies: List<MtProtoProxy>, generation: Int) {
+        if (proxies.isEmpty()) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(checksInProgress = it.checksInProgress + proxies.size) }
+            val gate = Semaphore(4)
+            proxies.mapIndexed { order, proxy ->
+                async {
+                    gate.withPermit {
+                        val samples = mutableListOf<Long?>()
+                        repeat(2) { attempt ->
+                            samples += runCatching {
+                                withContext(Dispatchers.IO) { checker.ping(proxy) }
+                            }.getOrNull()
+                            if (attempt == 0) delay(180)
+                        }
+                        order to ProxyAvailabilityPolicy.evaluate(proxy, samples)
+                    }
+                }
+            }.awaitAll().sortedBy { it.first }.forEach { (_, result) ->
+                if (generation != refreshGeneration) return@forEach
+                if (result.availability != Availability.UNAVAILABLE) results[result.proxy.key] = result
+                _uiState.update {
+                    it.copy(
+                        stage = AppStage.READY,
+                        results = candidates.values.mapNotNull { proxy -> results[proxy.key] },
+                        checksInProgress = (it.checksInProgress - 1).coerceAtLeast(0),
+                    )
+                }
+            }
+        }
     }
 }
