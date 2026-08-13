@@ -85,6 +85,7 @@ jobs:
             adb pull /sdcard/Download/proxy-pilot-guide.png output/android-screen-test/proxy-pilot-guide-compact-large-font.png
             adb pull /sdcard/Download/proxy-pilot-user-flow.png output/android-screen-test/proxy-pilot-user-flow-compact-large-font.png
             adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+            adb shell input keyevent 4 || true
             adb shell am force-stop dev.mtproxypilot
             adb shell am start -n dev.mtproxypilot/.MainActivity
             sleep 25

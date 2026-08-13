@@ -3,11 +3,14 @@ package dev.mtproxypilot
 import android.graphics.Bitmap
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.test.platform.app.InstrumentationRegistry
 import dev.mtproxypilot.domain.Availability
 import dev.mtproxypilot.domain.MtProtoProxy
@@ -89,7 +92,8 @@ class ProxyPilotScreenTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val output = File(instrumentation.targetContext.getExternalFilesDir(null), name)
         FileOutputStream(output).use { stream ->
-            instrumentation.uiAutomation.takeScreenshot().compress(Bitmap.CompressFormat.PNG, 100, stream)
+            compose.onRoot().captureToImage().asAndroidBitmap()
+                .compress(Bitmap.CompressFormat.PNG, 100, stream)
         }
         instrumentation.uiAutomation
             .executeShellCommand("cp ${output.absolutePath} /sdcard/Download/$name")
