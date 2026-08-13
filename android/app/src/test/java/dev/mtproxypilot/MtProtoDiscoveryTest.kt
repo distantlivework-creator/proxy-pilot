@@ -6,6 +6,8 @@ import dev.mtproxypilot.domain.MtProtoLinkParser
 import dev.mtproxypilot.domain.MtProtoProxy
 import dev.mtproxypilot.domain.NewProxyUpdateScanner
 import dev.mtproxypilot.domain.ProxyAvailabilityPolicy
+import dev.mtproxypilot.domain.ProxyHistory
+import dev.mtproxypilot.domain.ProxyHistoryPolicy
 import dev.mtproxypilot.domain.TelegramChannelMessage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -73,5 +75,41 @@ class MtProtoDiscoveryTest {
         assertTrue(scanner.accept(TelegramChannelMessage(10, 49, 1_001, link)).isEmpty())
         assertEquals(1, scanner.accept(TelegramChannelMessage(10, 51, 1_001, link)).size)
         assertEquals(51L, scanner.cursor(10)?.lastMessageId)
+    }
+
+    @Test
+    fun temporaryFailureKeepsRecentlyWorkingProxyForLaterNetworkCheck() {
+        val proxy = MtProtoProxy("proxy.example", 443, secret)
+        val now = 2_000_000L
+        val successful = ProxyAvailabilityPolicy.evaluate(proxy, listOf(90, 110))
+        val firstHistory = ProxyHistoryPolicy.record(ProxyHistory(proxy), successful, now - 1_000)
+        val failed = ProxyAvailabilityPolicy.evaluate(proxy, listOf(null, null))
+        val afterFailure = ProxyHistoryPolicy.record(firstHistory, failed, now)
+
+        val retained = ProxyHistoryPolicy.visibleResult(failed, afterFailure, now)
+
+        assertTrue(retained?.retainedFromHistory == true)
+        assertEquals(Availability.UNSTABLE, retained?.availability)
+        assertEquals(110L, retained?.medianLatencyMs)
+    }
+
+    @Test
+    fun repeatedFailedRoundsHideButDoNotEraseHistory() {
+        val proxy = MtProtoProxy("proxy.example", 443, secret)
+        val now = 2_000_000L
+        val failed = ProxyAvailabilityPolicy.evaluate(proxy, listOf(null, null))
+        var history = ProxyHistory(
+            proxy = proxy,
+            successes = 2,
+            lastSuccessfulAt = now - 1_000,
+            lastLatencyMs = 110,
+        )
+        repeat(ProxyHistoryPolicy.HIDE_AFTER_FAILED_ROUNDS) { round ->
+            history = ProxyHistoryPolicy.record(history, failed, now + round)
+        }
+
+        assertEquals(null, ProxyHistoryPolicy.visibleResult(failed, history, now + 10))
+        assertEquals(2, history.successes)
+        assertEquals(ProxyHistoryPolicy.HIDE_AFTER_FAILED_ROUNDS, history.consecutiveFailures)
     }
 }

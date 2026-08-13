@@ -38,7 +38,7 @@ class ProxyCatalogRepository(
             connection.connectTimeout = 8_000
             connection.readTimeout = 8_000
             connection.setRequestProperty("Accept", "application/json")
-            connection.setRequestProperty("User-Agent", "ProxyPilot-Android/0.3.2")
+            connection.setRequestProperty("User-Agent", "ProxyPilot-Android/0.4.0")
             check(connection.responseCode in 200..299) { "Каталог ответил ${connection.responseCode}" }
             ProxyCatalogParser.parse(connection.inputStream.bufferedReader().use { it.readText() })
         } finally {

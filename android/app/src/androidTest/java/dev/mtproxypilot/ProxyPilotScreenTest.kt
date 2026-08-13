@@ -3,6 +3,7 @@ package dev.mtproxypilot
 import android.graphics.Bitmap
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -89,6 +90,36 @@ class ProxyPilotScreenTest {
         compose.onNodeWithTag("mainScroll").performScrollToIndex(2)
         compose.onNodeWithTag("sharedNotice").assertIsDisplayed()
         compose.onNodeWithText("Получено из Telegram: 2. Проверяем с этого устройства.").assertIsDisplayed()
+    }
+
+    @Test
+    fun temporarilyUnavailableProxyStaysVisibleButCannotBeAdded() {
+        compose.setContent {
+            MaterialTheme {
+                PilotScreen(
+                    state = MainUiState(
+                        stage = AppStage.READY,
+                        results = listOf(
+                            proxy.copy(
+                                successfulAttempts = 0,
+                                availability = Availability.UNSTABLE,
+                                retainedFromHistory = true,
+                            )
+                        ),
+                        totalCandidates = 1,
+                        poolMessage = "Сеть изменилась · перепроверяем сохранённые маршруты",
+                    ),
+                    onRefresh = {},
+                    onDismissSharedMessage = {},
+                    onOpenProxy = {},
+                    onCheckUpdates = {},
+                )
+            }
+        }
+
+        compose.onNodeWithTag("mainScroll").performScrollToIndex(3)
+        compose.onNodeWithText("сейчас не ответил · сохранён для повторной проверки").assertIsDisplayed()
+        compose.onNodeWithTag("openProxy").assertIsNotEnabled()
     }
 
     private fun captureScreen(name: String) {

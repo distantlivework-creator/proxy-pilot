@@ -8,6 +8,7 @@ data class ProxyAvailability(
     val successfulAttempts: Int,
     val medianLatencyMs: Long?,
     val availability: Availability,
+    val retainedFromHistory: Boolean = false,
 )
 
 object ProxyAvailabilityPolicy {

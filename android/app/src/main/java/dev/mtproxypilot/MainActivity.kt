@@ -177,7 +177,7 @@ internal fun PilotScreen(
                     if (state.results.isNotEmpty()) {
                         item {
                             Text(
-                                "ДОСТУПНЫЕ МАРШРУТЫ",
+                                "ДОСТУПНЫЕ И СОХРАНЁННЫЕ МАРШРУТЫ",
                                 color = PilotGreen,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
@@ -335,7 +335,7 @@ private fun VinylHero(state: MainUiState) {
         Text(
             when {
                 state.checksInProgress > 0 -> "ПРОВЕРЯЕМ: ${state.totalCandidates - state.checksInProgress} ИЗ ${state.totalCandidates}"
-                state.stage == AppStage.READY -> "ГОТОВО: ${state.results.size} ИЗ ${state.totalCandidates}"
+                state.stage == AppStage.READY -> "ГОТОВО: ${state.results.count { !it.retainedFromHistory }} ИЗ ${state.totalCandidates}"
                 state.stage == AppStage.ERROR -> "НАЖМИТЕ ОБНОВИТЬ"
                 else -> "ЗАГРУЖАЕМ"
             },
@@ -347,7 +347,7 @@ private fun VinylHero(state: MainUiState) {
         )
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            repeat(3) { index -> CueDot(index + 1, active = state.results.size > index) }
+            repeat(3) { index -> CueDot(index + 1, active = state.results.count { !it.retainedFromHistory } > index) }
         }
     }
 }
@@ -385,13 +385,23 @@ private fun DeckStatus(state: MainUiState) {
                 when {
                     state.stage == AppStage.ERROR -> "Откройте меню и нажмите «Обновить каталог»"
                     state.stage == AppStage.LOADING -> "Это обычно занимает несколько секунд"
-                    else -> "Доступно ${state.results.size} из ${state.totalCandidates}" +
+                    else -> "Доступно ${state.results.count { !it.retainedFromHistory }} из ${state.totalCandidates}" +
                         if (state.checksInProgress > 0) " · осталось ${state.checksInProgress}" else ""
                 },
                 color = DeckMuted,
                 fontSize = 12.sp,
                 lineHeight = 17.sp,
             )
+            state.poolMessage?.let { message ->
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    message,
+                    color = PilotGreen,
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp,
+                    modifier = Modifier.testTag("poolMessage"),
+                )
+            }
         }
     }
 }
@@ -494,7 +504,11 @@ private fun ProxyRow(result: ProxyAvailability, onOpenProxy: (ProxyAvailability)
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    if (result.availability == Availability.AVAILABLE) "маршрут ответил дважды" else "маршрут ответил один раз",
+                    when {
+                        result.retainedFromHistory -> "сейчас не ответил · сохранён для повторной проверки"
+                        result.availability == Availability.AVAILABLE -> "маршрут ответил дважды"
+                        else -> "маршрут ответил один раз"
+                    },
                     color = DeckMuted,
                     fontSize = 12.sp,
                 )
@@ -504,12 +518,17 @@ private fun ProxyRow(result: ProxyAvailability, onOpenProxy: (ProxyAvailability)
         Spacer(Modifier.height(12.dp))
         Button(
             onClick = { onOpenProxy(result) },
+            enabled = !result.retainedFromHistory,
             modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("openProxy"),
-            colors = ButtonDefaults.buttonColors(containerColor = PilotDeepGreen),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = PilotDeepGreen,
+                disabledContainerColor = Color(0xFF263A37),
+                disabledContentColor = DeckMuted,
+            ),
         ) {
             Icon(Icons.Rounded.AddLink, null, Modifier.size(19.dp))
             Spacer(Modifier.size(8.dp))
-            Text("Добавить в Telegram", fontWeight = FontWeight.Bold)
+            Text(if (result.retainedFromHistory) "Повторим после смены сети" else "Добавить в Telegram", fontWeight = FontWeight.Bold)
         }
     }
 }
