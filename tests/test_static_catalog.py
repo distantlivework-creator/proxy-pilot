@@ -322,4 +322,7 @@ def test_language_toggle_translates_the_whole_interface():
     assert "Questions in record sleeves" in PAGE
     assert "How is MTProto Proxy different from a VPN?" in PAGE
     assert "Collapse answer ↑" in PAGE
+    assert "'Как пользоваться':'How to use Proxy Pilot'" in PAGE
+    assert "'Три прокси отмечены как добавленные':'Three proxies marked as added'" in PAGE
+    assert "'Статус и Auto-Switch проверьте в Telegram':'Check status and Auto-Switch in Telegram'" in PAGE
     assert "languageObserver.observe" in PAGE
