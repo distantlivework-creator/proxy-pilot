@@ -7,7 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.test.platform.app.InstrumentationRegistry
 import dev.mtproxypilot.domain.Availability
 import dev.mtproxypilot.domain.MtProtoProxy
@@ -55,7 +55,8 @@ class ProxyPilotScreenTest {
         compose.onNodeWithText("Вход, регистрация и ваш Telegram-аккаунт не нужны.").assertIsDisplayed()
         captureScreen("proxy-pilot-guide.png")
         compose.onNodeWithTag("guideDone").performClick()
-        compose.onNodeWithTag("openProxy").performScrollTo().performClick()
+        compose.onNodeWithTag("mainScroll").performScrollToIndex(3)
+        compose.onNodeWithTag("openProxy").assertIsDisplayed().performClick()
         captureScreen("proxy-pilot-user-flow.png")
 
         assertEquals(proxy, opened)
@@ -78,6 +79,7 @@ class ProxyPilotScreenTest {
             }
         }
 
+        compose.onNodeWithTag("mainScroll").performScrollToIndex(2)
         compose.onNodeWithTag("sharedNotice").assertIsDisplayed()
         compose.onNodeWithText("Получено из Telegram: 2. Проверяем с этого устройства.").assertIsDisplayed()
     }
