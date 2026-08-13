@@ -46,7 +46,9 @@ class ProxyPoolStore(context: Context) {
     fun mergeCandidates(proxies: Collection<MtProtoProxy>) {
         if (proxies.isEmpty()) return
         val records = readAll().associateByTo(linkedMapOf()) { it.proxy.key }
-        proxies.forEach { proxy -> records.putIfAbsent(proxy.key, ProxyHistory(proxy)) }
+        proxies.forEach { proxy ->
+            if (!records.containsKey(proxy.key)) records[proxy.key] = ProxyHistory(proxy)
+        }
         write(records.values)
     }
 
