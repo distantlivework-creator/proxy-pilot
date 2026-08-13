@@ -72,6 +72,8 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
+            adb shell am force-stop com.android.launcher3 || true
+            adb shell am force-stop com.google.android.apps.nexuslauncher || true
             ./android/gradlew -p android :app:connectedDebugAndroidTest --stacktrace
             mkdir -p output/android-screen-test
             adb pull /sdcard/Download/proxy-pilot-guide.png output/android-screen-test/proxy-pilot-guide.png
@@ -81,6 +83,8 @@ jobs:
             adb shell settings put system font_scale 1.5
             adb shell am force-stop dev.mtproxypilot.test || true
             adb shell am force-stop dev.mtproxypilot || true
+            adb shell am force-stop com.android.launcher3 || true
+            adb shell am force-stop com.google.android.apps.nexuslauncher || true
             ./android/gradlew -p android :app:connectedDebugAndroidTest --stacktrace
             adb pull /sdcard/Download/proxy-pilot-guide.png output/android-screen-test/proxy-pilot-guide-compact-large-font.png
             adb pull /sdcard/Download/proxy-pilot-user-flow.png output/android-screen-test/proxy-pilot-user-flow-compact-large-font.png
